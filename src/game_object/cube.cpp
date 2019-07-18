@@ -1,28 +1,39 @@
-#include "plane.h"
+#include "cube.h"
 
-void Plane::initPlaneVAO() {
-	unsigned int planeVBO;
-	glGenVertexArrays(1, &planeVAO);
-	glGenBuffers(1, &planeVBO);
-	glBindVertexArray(planeVAO);
-	glBindBuffer(GL_ARRAY_BUFFER, planeVBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(planeVertices), planeVertices, GL_STATIC_DRAW);
+void Cube::initCubeVAO() {
+	unsigned int cubeVBO;
+	glGenVertexArrays(1, &cubeVAO);
+	glGenBuffers(1, &cubeVBO);
+	glBindVertexArray(cubeVAO);
+	glBindBuffer(GL_ARRAY_BUFFER, cubeVBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(cubeVertices), cubeVertices, GL_STATIC_DRAW);
 	glEnableVertexAttribArray(0);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(1);
 	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
+	
 	glEnableVertexAttribArray(2);
 	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
 	glBindVertexArray(0);
+	
 }
 
-void Plane::initTexture() {
+void Cube::draw(Shader* shader) const {
+	//shader->use();
+	//glActiveTexture(GL_TEXTURE0);
+	//glBindTexture(GL_TEXTURE_2D, texture);
+	//glActiveTexture(GL_TEXTURE1);
+	//glBindTexture(GL_TEXTURE_2D, RendererManager::depthMap);
+	glBindVertexArray(cubeVAO);
+	glDrawArrays(GL_TRIANGLES, 0, 36);
+	glBindVertexArray(0);
+}
 
+void Cube::initTexture() {
 	glGenTextures(1, &texture);
 	int width, height, nrComponents;
-	unsigned char *data = stbi_load("./res/terrain/grass.png", &width, &height, &nrComponents, 0);
+	unsigned char *data = stbi_load("res/terrain/grass.png", &width, &height, &nrComponents, 0);
 	if (data) {
-		cout << height << " " << width << endl;
 		GLenum format;
 		if (nrComponents == 1)
 			format = GL_RED;
@@ -33,6 +44,7 @@ void Plane::initTexture() {
 		glBindTexture(GL_TEXTURE_2D, texture);
 		glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
 		glGenerateMipmap(GL_TEXTURE_2D);
+
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
@@ -41,30 +53,17 @@ void Plane::initTexture() {
 	}
 }
 
-
-
-
-
-
-void Plane::draw(Shader* shader) const {
-	shader->setInt("texture_diffuse_1", 98);
-	glActiveTexture(GL_TEXTURE0 + 98); 
-	glBindTexture(GL_TEXTURE_2D, texture); 
-	glActiveTexture(GL_TEXTURE0);
-	glBindVertexArray(planeVAO);
-	glDrawArrays(GL_TRIANGLES, 0, 36);
-	glBindVertexArray(0);
-}
-glm::mat4 Plane::getModelMat() const {
-
-	glm::mat4 model = glm::mat4(1.0f);
-	model = glm::scale(model, glm::vec3(10, 1, 10));
+glm::mat4 Cube::getModelMat() const {
+	glm::mat4 model = glm::mat4(3.0f);
+	model = glm::translate(model, this->position);
 	return model;
 }
 
-Plane::Plane() {
-  initPlaneVAO();
-  initTexture();
+Cube::Cube() {
+	position = glm::vec3(0, 5, 0);
+	initCubeVAO();
+	//initTexture();
 	this->useVertColor = true;
-	this->vertColor = glm::vec3(-1, -1, -1);
+	//this->vertColor = glm::vec3(-1, -1, -1);
+	this->vertColor = glm::vec3(1, 1, 1);
 }

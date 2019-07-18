@@ -1,11 +1,14 @@
 #include "car.h"
 
-const float Car::turnAngle = 0.5f;
+const float Car::turnAngle = 1.5f;
 
 void Car::move(const float t) {
   originAngle = angle;
   position += speed * t * direction;
+  velocity = direction * speed;
 }
+
+
 
 void Car::speedup(const float t) {
 	if (speed < abs(this->maxSpeed))
@@ -49,16 +52,25 @@ void Car::friction(const float t)
 	}
 }
 
+void Car::brake()
+{
+	speed = 0;
+}
+void Car::accelarate(const float t)
+{
+	
+}
+
 Car::Car(const string& path) {
   speed = 0.f;
-  a = 10.6f;
-  fa = 0.3f;
+  a = 1.36f;
+  fa = 0.5f;
   maxSpeed = 20.f;
   direction = glm::vec3(-1, 0, 0);
   angle = 0.0;
   originAngle = 0.0f;
   loader = new ModelLoader(path.c_str());
-  position = glm::vec3(0, -0.5, 0);
+  position = glm::vec3(0, 0.5, -110);
 }
 
 Car::~Car() {
@@ -82,6 +94,7 @@ void Car::rotate(const float offset) {
 glm::mat4 Car::getModelMat() const {
   glm::mat4 model = glm::mat4(1.0f);
   model = glm::translate(model, position);
+	// // model = glm::translate(model, glm::vec3(0, 1, 0));
   model = glm::rotate(model, glm::radians(originAngle), glm::vec3(0, 1, 0));
-  return model;
+	return model;
 }
